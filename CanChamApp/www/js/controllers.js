@@ -230,7 +230,18 @@ angular.module('starter.controllers', [])
 })
 
 
-.controller('PlaylistCtrl', function($scope, $stateParams) {
-});
+.controller('PlaylistCtrl', function($scope, $stateParams, $http) {
+            $scope.enviarPregunta = {};
+            $scope.sendQuestion = async = function(){
+            var pregunta = $scope.enviarPregunta.pregunta;
+            var link = "https://admin-canchammx-aileennag.c9users.io/pregunta/"+pregunta;
+            $http.jsonp(link)
+            .then(function successCallback(response) {
+                  }, function errorCallback(response) {
+                    alert("Se ha enviado tu pregunta satisfactoriamente");
+                  });
+            $scope.enviarPregunta.pregunta = "";
+            };
+  });
 
 

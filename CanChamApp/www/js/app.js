@@ -49,7 +49,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'services'])
       }
     }
   })
-
   .state('app.calendario', {
       url: '/calendario',
       views: {
@@ -74,6 +73,15 @@ angular.module('starter', ['ionic', 'starter.controllers', 'services'])
           templateUrl: 'templates/login.html',
           controller: 'LogCtrl'
         }
+      }
+  })
+  .state('app.preguntas', {
+      url: '/preguntas',
+      views: {
+         'menuContent': {
+          templateUrl: 'templates/preguntas.html',
+          controller: 'PlaylistCtrl'
+          }
       }
   })
 

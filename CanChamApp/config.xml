@@ -76,4 +76,5 @@
         <variable name="APP_ID" value="394520834258732" />
         <variable name="APP_NAME" value="CanChamApp" />
     </plugin>
+    <plugin name="cordova-sqlite-storage" spec="~2.0.2" />
 </widget>
