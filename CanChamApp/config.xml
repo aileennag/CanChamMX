@@ -17,6 +17,7 @@
     <preference name="android-minSdkVersion" value="16" />
     <preference name="BackupWebStorage" value="none" />
     <preference name="SplashScreen" value="screen" />
+    <preference name="android-build-tool" value="gradle" />
     <feature name="StatusBar">
         <param name="ios-package" onload="true" value="CDVStatusBar" />
     </feature>
@@ -77,4 +78,5 @@
         <variable name="APP_NAME" value="CanChamApp" />
     </plugin>
     <plugin name="cordova-sqlite-storage" spec="~2.0.2" />
+    <plugin name="cordova-plugin-calendar" />
 </widget>

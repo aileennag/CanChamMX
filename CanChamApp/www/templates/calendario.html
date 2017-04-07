@@ -1,15 +1,15 @@
 <ion-view view-title="Calendario de eventos">
   <ion-content>
-    <div class="list card">
-      <div class="item item-avatar">
-        <img src="img/Icon.png">
-          <h2>CanCham Day</h2>
-          <p>Abril 27, 2017</p>
+    <div class="card" ng-repeat="event in events">
+      <div class="item item-divider">
+        {{event.title}}
       </div>
-      <div class="item item-body">
-          <p>
-          El evento más importante de México. Ciudad de México, Hotel Hyatt.
-          </p>
+      <div class="item item-text-wrap">
+        {{ event.description }}
+        <p/>
+        <strong>Fecha: {{ event.date | date:'short' }}</strong>
+        <p ng-if="event.status">Este evento ya se ha agregado a tu calendario!</p>
+        <button ng-if="!event.status" ng-click="addEvent(event,$index)" class="button button-block button-assertive">Añadir a calendario</button>
       </div>
     </div>
   </ion-content>
