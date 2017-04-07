@@ -1,5 +1,14 @@
 angular.module('starter.controllers', [])
 
+.controller('MainCtrl', function($scope, Events) {
+            
+            Events.get().then(function(events) {
+                              console.log("events", events);
+                              $scope.events = events;
+                              });
+            
+})
+
 .controller('LogCtrl', function($scope, $state, $q, UserService, $ionicLoading, $ionicModal, $timeout) {
 
   // With the new view caching in Ionic, Controllers are only called
@@ -219,16 +228,8 @@ angular.module('starter.controllers', [])
 })
 
 .controller('PlaylistsCtrl', function($scope) {
-  $scope.playlists = [
-    { title: 'Reggae', id: 1 },
-    { title: 'Chill', id: 2 },
-    { title: 'Dubstep', id: 3 },
-    { title: 'Indie', id: 4 },
-    { title: 'Rap', id: 5 },
-    { title: 'Cowbell', id: 6 }
-  ];
+      
 })
-
 
 .controller('PlaylistCtrl', function($scope, $stateParams, $http) {
             $scope.enviarPregunta = {};
@@ -242,6 +243,6 @@ angular.module('starter.controllers', [])
                   });
             $scope.enviarPregunta.pregunta = "";
             };
-  });
+});
 
 
