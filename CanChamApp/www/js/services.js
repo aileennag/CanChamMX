@@ -34,53 +34,99 @@ angular.module('starter.services', [])
   };
 })
 
-.factory('Events', function($q) {
+.factory('Request', function($http) {
          
-         var incrementDate = function (date, amount) {
-         var tmpDate = new Date(date);
-         tmpDate.setDate(tmpDate.getDate() + amount)
-         return tmpDate;
-         };
-         
-         //create fake events, but make it dynamic so they are in the next week
-         var fakeEvents = [];
-         fakeEvents.push(
-                         {
-                         "title":"CanCham Day",
-                         "description":"CanCham Day es el evento anual más importante de la Cámara de Comercio del Canadá en México. Durante el mismo, se tratan diferentes temáticas sobre la inversión canadiense en nuestro país y viceversa.",
-                         "date":incrementDate(new Date(), 1)
-                         }
-                         );
-         fakeEvents.push(
-                         {
-                         "title":"Meetup on Beer",
-                         "description":"We'll talk about Ionic, not Beer.",
-                         "date":incrementDate(new Date(), 2)
-                         }
-                         );
-         fakeEvents.push(
-                         {
-                         "title":"Ray's Birthday Bash",
-                         "description":"Celebrate the awesomeness of Ray",
-                         "date":incrementDate(new Date(), 4)
-                         }
-                         );
-         fakeEvents.push(
-                         {
-                         "title":"Code Review",
-                         "description":"Let's tear apart Ray's code.",
-                         "date":incrementDate(new Date(), 5)
-                         }   
-                         );
-         
-         var getEvents = function() {
-         var deferred = $q.defer();
-         deferred.resolve(fakeEvents);
-         return deferred.promise;
-         }
+         var getJSON = '';
          
          return {
-         get:getEvents
+         getInfo: function() {
+         return $http.jsonp(getJSON);
+         }
          };
          
+})
+
+.factory('Events', function($q, $ionicPlatform, $cordovaCalendar, $http) {
+
+	var incrementDate = function (date, amount) {
+			var tmpDate = new Date(date);
+			tmpDate.setDate(tmpDate.getDate() + amount)
+			return tmpDate;
+	};
+
+  var incrementHour = function(date, amount) {
+		var tmpDate = new Date(date);
+		tmpDate.setHours(tmpDate.getHours() + amount);
+		return tmpDate;
+	};
+   
+  var eventos = [];
+  var getEvents = function(){
+    return $http.get('https://admin-canchammx-aileennag.c9users.io/eventos')
+      .success(function(data, status, headers,config){
+        console.log('data success');
+        data.forEach(evento=>{
+          eventos.push(evento);
+        });
+      })
+      .error(function(data, status, headers,config){
+        console.log('data error');
+      })
+      .then(function(result){
+        var deferred = $q.defer();
+        var promises = [];
+
+        eventos.forEach(function(ev) {
+          //add enddate as 1 hour plus
+          ev.enddate = incrementHour(ev.fecha, 10);
+          ev.fecha = incrementHour(ev.fecha, 5);
+          console.log('try to find '+JSON.stringify(ev));
+          if (window.plugins && window.plugins.calendar) {
+              /*promises.push($cordovaCalendar.findEvent({
+                title:ev.nombre,
+                startDate:ev.fecha
+              }));*/
+          }else console.log("Calendar plugin not available.");
+        });
+			
+        $q.all(promises).then(function(results) {
+          console.log("in the all done");
+          //should be the same len as events
+          for(var i=0;i<results.length;i++) {
+            eventos[i].status = results[i].length === 1;
+          }
+          deferred.resolve(eventos);
+        });
+			
+			return deferred.promise;
+    });
+  }
+  
+  var addEvent = function(event) {
+		var deferred = $q.defer();
+    if (window.plugins && window.plugins.calendar) {
+      $cordovaCalendar.createEvent({
+        title: event.nombre,
+        location: event.direccion,
+        notes: event.descripcion,
+        startDate: new Date(event.fecha),
+        endDate: event.enddate
+      }).then(function (result) {
+        alert(" has been added to your calendar.");
+        deferred.resolve(1);
+      }, function (err) {
+        console.log("Calendar fail " + error);
+        deferred.resolve(0);
+      });
+		}else console.log("Calendar plugin not available.");
+		
+    return deferred.promise;
+	}
+	
+  return {
+		get:getEvents,
+    add:addEvent
+  };
+
 });
+

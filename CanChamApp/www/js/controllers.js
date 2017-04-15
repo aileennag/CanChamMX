@@ -1,13 +1,30 @@
 angular.module('starter.controllers', [])
 
-.controller('MainCtrl', function($scope, Events) {
-            
-            Events.get().then(function(events) {
-                              console.log("events", events);
-                              $scope.events = events;
-                              });
-            
+.controller('MainCtrl', function($scope, Events, $cordovaCalendar, $timeout, $http) {
+	
+		Events.get().then(function(events) {
+			console.log("events", JSON.stringify(events));
+			$scope.events = events;
+		});
+  
+  $scope.addEvent = function(event,idx) {
+		console.log("add ",event);
+		Events.add(event).then(function(result) {
+			console.log("done adding event, result is "+result);
+			if(result === 1) {
+				//update the event
+				$timeout(function() {
+					$scope.events[idx].status = true;
+					$scope.$apply();
+				});
+			} else {
+				//For now... maybe just tell the user it didn't work?
+			}
+		});
+	};
+  
 })
+
 
 .controller('LogCtrl', function($scope, $state, $q, UserService, $ionicLoading, $ionicModal, $timeout) {
 
@@ -154,6 +171,32 @@ angular.module('starter.controllers', [])
       }
     });
   };
+            $scope.googleSignIn = function() {
+            $ionicLoading.show({
+                               template: 'Logging in...'
+                               });
+            
+            window.plugins.googleplus.login(
+                                            {},
+                                            function (user_data) {
+                                            // For the purpose of this example I will store user data on local storage
+                                            UserService.setUser({
+                                                                userID: user_data.userId,
+                                                                name: user_data.displayName,
+                                                                email: user_data.email,
+                                                                picture: user_data.imageUrl,
+                                                                accessToken: user_data.accessToken,
+                                                                idToken: user_data.idToken
+                                                                });
+                                            
+                                            $ionicLoading.hide();
+                                            $state.go('app.home');
+                                            },
+                                            function (msg) {
+                                            $ionicLoading.hide();
+                                            }
+                                            );
+            };
 })
 
 .controller('HomeCtrl', function($scope, UserService, $ionicActionSheet, $state, $ionicLoading){
@@ -187,45 +230,58 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout) {
-
-  // With the new view caching in Ionic, Controllers are only called
-  // when they are recreated or on app start, instead of every page change.
-  // To listen for when this page is active (for example, to refresh data),
-  // listen for the $ionicView.enter event:
-  //$scope.$on('$ionicView.enter', function(e) {
-  //});
-
-  // Form data for the login modal
-  $scope.loginData = {};
-
-  // Create the login modal that we will use later
-  $ionicModal.fromTemplateUrl('templates/loginMail.html', {
-    scope: $scope
-  }).then(function(modal) {
-    $scope.modal = modal;
-  });
-
-  // Triggered in the login modal to close it
-  $scope.closeLogin = function() {
-    $scope.modal.hide();
-  };
-
-  // Open the login modal
-  $scope.login = function() {
-  };
-
-  // Perform the login action when the user submits the login form
-  $scope.doLogin = function() {
-    console.log('Doing login', $scope.loginData);
-
-    // Simulate a login delay. Remove this and replace with your login
-    // code if using a login system
-    $timeout(function() {
-      $scope.closeLogin();
-    }, 1000);
-  };
-})
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, $state, $q, UserService, $ionicLoading) {
+            
+            // With the new view caching in Ionic, Controllers are only called
+            // when they are recreated or on app start, instead of every page change.
+            // To listen for when this page is active (for example, to refresh data),
+            // listen for the $ionicView.enter event:
+            //$scope.$on('$ionicView.enter', function(e) {
+            //});
+            
+            // Form data for the login modal
+            $scope.loginData = {};
+            
+            // Create the login modal that we will use later
+            $ionicModal.fromTemplateUrl('templates/docs.html', {
+                                        scope: $scope
+                                        }).then(function(modal) {
+                                                $scope.modal = modal;
+                                                });
+            
+            // Triggered in the login modal to close it
+            $scope.closeLogin = function() {
+            $scope.modal.hide();
+            };
+            
+            // Open the login modal
+            $scope.login = function() {
+            };
+            
+            // Perform the login action when the user submits the login form
+            $scope.doLogin = function() {
+            console.log('Doing login', $scope.loginData);
+            
+            // Simulate a login delay. Remove this and replace with your login
+            // code if using a login system
+            $timeout(function() {
+                     $scope.closeLogin();
+                     }, 1000);
+            };
+            
+            $scope.docs = function() {
+            $scope.modal.show();
+            //$state.go('app.loginmail');
+            };
+            
+            $scope.goBack = function() {
+            $ionicHistory.goBack();
+            };
+            
+            $scope.closeDoc = function() {
+            $scope.modal.hide();
+            };
+  })
 
 .controller('PlaylistsCtrl', function($scope) {
       

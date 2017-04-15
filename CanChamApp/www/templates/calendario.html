@@ -2,14 +2,16 @@
   <ion-content>
     <div class="card" ng-repeat="event in events">
       <div class="item item-divider">
-        {{event.title}}
+        <font size="4">{{event.nombre}}</font>
       </div>
       <div class="item item-text-wrap">
-        {{ event.description }}
+        <font size="2"><strong>{{ event.fecha | date:'MMMM d, y h:mma'}}</strong></font>
         <p/>
-        <strong>Fecha: {{ event.date | date:'short' }}</strong>
-        <p ng-if="event.status">Este evento ya se ha agregado a tu calendario!</p>
-        <button ng-if="!event.status" ng-click="addEvent(event,$index)" class="button button-block button-assertive">Añadir a calendario</button>
+        <dfn>{{event.direccion}}</dfn>
+        <p/>
+        <font color="black">{{event.descripcion }}</font>
+        <p ng-if="event.status">Se ha añadido el evento a tu calendario</p>
+        <button ng-if="!event.status" ng-click="addEvent(event,$index)" class="button button-block button-assertive">Añadir al calendario</button>
       </div>
     </div>
   </ion-content>
