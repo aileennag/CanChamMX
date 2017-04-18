@@ -82,10 +82,12 @@ angular.module('starter.services', [])
           ev.fecha = incrementHour(ev.fecha, 5);
           console.log('try to find '+JSON.stringify(ev));
           if (window.plugins && window.plugins.calendar) {
-              /*promises.push($cordovaCalendar.findEvent({
+            if (device.platform === "iOS") {
+              promises.push($cordovaCalendar.findEvent({
                 title:ev.nombre,
                 startDate:ev.fecha
-              }));*/
+              }));
+            }
           }else console.log("Calendar plugin not available.");
         });
 			
@@ -128,5 +130,42 @@ angular.module('starter.services', [])
     add:addEvent
   };
 
+})
+
+.factory('Documents', function($q, $timeout, $cordovaFileTransfer, $http) {
+  var documentos = [];
+  var getDocumentos = function(){
+    return $http.get('https://admin-canchammx-aileennag.c9users.io/documentos')
+      .success(function(data, status, headers,config){
+        console.log('data success');
+        data.forEach(doc=>{
+          documentos.push(doc);
+        });
+      })
+      .error(function(data, status, headers,config){
+        console.log('data error');
+      })
+      .then(function(result){
+        var deferred = $q.defer();
+        var promises = [];
+			
+        $q.all(promises).then(function(results) {
+          console.log("in the all done");
+          //should be the same len as events
+          for(var i=0;i<results.length;i++) {
+            documentos[i].status = results[i].length === 1;
+          }
+          deferred.resolve(documentos);
+        });
+			
+			return deferred.promise;
+    });
+  }
+  
+  return {
+		get:getDocumentos
+  };
+
 });
+
 
