@@ -1,30 +1,5 @@
 angular.module('starter.controllers', [])
 
-.controller('MainCtrl', function($scope, Events, $cordovaCalendar, $timeout, $http) {
-	
-		Events.get().then(function(events) {
-			console.log("events", JSON.stringify(events));
-			$scope.events = events;
-		});
-  
-  $scope.addEvent = function(event,idx) {
-		console.log("add ",event);
-		Events.add(event).then(function(result) {
-			console.log("done adding event, result is "+result);
-			if(result === 1) {
-				//update the event
-				$timeout(function() {
-					$scope.events[idx].status = true;
-					$scope.$apply();
-				});
-			} else {
-				//For now... maybe just tell the user it didn't work?
-			}
-		});
-	};
-  
-})
-
 
 .controller('LogCtrl', function($scope, $state, $q, UserService, $ionicLoading, $ionicModal, $timeout) {
 
@@ -44,6 +19,7 @@ angular.module('starter.controllers', [])
   }).then(function(modal) {
     $scope.modal = modal;
   });
+
 
   // Triggered in the login modal to close it
   $scope.closeLogin = function() {
@@ -88,7 +64,7 @@ angular.module('starter.controllers', [])
       });
 
       $ionicLoading.hide();
-      $state.go('app.home');
+      $state.go('app.homelg');
 
     }, function(fail){
       //fail get profile info
@@ -147,13 +123,15 @@ angular.module('starter.controllers', [])
               picture : "http://graph.facebook.com/" + success.authResponse.userID + "/picture?type=large"
             });
 
-            $state.go('app.home');
+            //go back to app.home if its not working
+            $state.go('app.homelg');
 
           }, function(fail){
             //fail get profile info
             console.log('profile info fail', fail);
           });
         }else{
+          //go back to app.home if its not working
           $state.go('app.home');
         }
 
@@ -171,32 +149,34 @@ angular.module('starter.controllers', [])
       }
     });
   };
-            $scope.googleSignIn = function() {
-            $ionicLoading.show({
-                               template: 'Logging in...'
-                               });
-            
-            window.plugins.googleplus.login(
-                                            {},
-                                            function (user_data) {
-                                            // For the purpose of this example I will store user data on local storage
-                                            UserService.setUser({
-                                                                userID: user_data.userId,
-                                                                name: user_data.displayName,
-                                                                email: user_data.email,
-                                                                picture: user_data.imageUrl,
-                                                                accessToken: user_data.accessToken,
-                                                                idToken: user_data.idToken
-                                                                });
-                                            
-                                            $ionicLoading.hide();
-                                            $state.go('app.home');
-                                            },
-                                            function (msg) {
-                                            $ionicLoading.hide();
-                                            }
-                                            );
-            };
+
+  $scope.googleSignIn = function() {
+    $ionicLoading.show({
+      template: 'Logging in...'
+    });
+
+    window.plugins.googleplus.login(
+      {},
+      function (user_data) {
+        // For the purpose of this example I will store user data on local storage
+        UserService.setUser({
+          userID: user_data.userId,
+          name: user_data.displayName,
+          email: user_data.email,
+          picture: user_data.imageUrl,
+          accessToken: user_data.accessToken,
+          idToken: user_data.idToken
+        });
+
+        $ionicLoading.hide();
+        $state.go('app.home');
+      },
+      function (msg) {
+        $ionicLoading.hide();
+      }
+    );
+  };
+
 })
 
 .controller('HomeCtrl', function($scope, UserService, $ionicActionSheet, $state, $ionicLoading){
@@ -231,74 +211,162 @@ angular.module('starter.controllers', [])
 })
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout, $state, $q, UserService, $ionicLoading) {
-            
-            // With the new view caching in Ionic, Controllers are only called
-            // when they are recreated or on app start, instead of every page change.
-            // To listen for when this page is active (for example, to refresh data),
-            // listen for the $ionicView.enter event:
-            //$scope.$on('$ionicView.enter', function(e) {
-            //});
-            
-            // Form data for the login modal
-            $scope.loginData = {};
-            
-            // Create the login modal that we will use later
-            $ionicModal.fromTemplateUrl('templates/docs.html', {
-                                        scope: $scope
-                                        }).then(function(modal) {
-                                                $scope.modal = modal;
-                                                });
-            
-            // Triggered in the login modal to close it
-            $scope.closeLogin = function() {
-            $scope.modal.hide();
-            };
-            
-            // Open the login modal
-            $scope.login = function() {
-            };
-            
-            // Perform the login action when the user submits the login form
-            $scope.doLogin = function() {
-            console.log('Doing login', $scope.loginData);
-            
-            // Simulate a login delay. Remove this and replace with your login
-            // code if using a login system
-            $timeout(function() {
-                     $scope.closeLogin();
-                     }, 1000);
-            };
-            
-            $scope.docs = function() {
-            $scope.modal.show();
-            //$state.go('app.loginmail');
-            };
-            
-            $scope.goBack = function() {
-            $ionicHistory.goBack();
-            };
-            
-            $scope.closeDoc = function() {
-            $scope.modal.hide();
-            };
-  })
+
+  // With the new view caching in Ionic, Controllers are only called
+  // when they are recreated or on app start, instead of every page change.
+  // To listen for when this page is active (for example, to refresh data),
+  // listen for the $ionicView.enter event:
+  //$scope.$on('$ionicView.enter', function(e) {
+  //});
+
+  // Form data for the login modal
+  $scope.loginData = {};
+
+  // Create the login modal that we will use later
+  $ionicModal.fromTemplateUrl('templates/docs.html', {
+    scope: $scope
+  }).then(function(modal) {
+    $scope.modal = modal;
+  });
+
+  // Triggered in the login modal to close it
+  $scope.closeLogin = function() {
+    $scope.modal.hide();
+  };
+
+  // Open the login modal
+  $scope.login = function() {
+  };
+
+  // Perform the login action when the user submits the login form
+  $scope.doLogin = function() {
+    console.log('Doing login', $scope.loginData);
+
+    // Simulate a login delay. Remove this and replace with your login
+    // code if using a login system
+    $timeout(function() {
+      $scope.closeLogin();
+    }, 1000);
+  };
+
+  $scope.docs = function() {
+    $scope.modal.show();
+    //$state.go('app.loginmail');
+  };
+
+  $scope.goBack = function() {
+    $ionicHistory.goBack();
+  };
+
+  $scope.closeDoc = function() {
+    $scope.modal.hide();
+  };
+})
 
 .controller('PlaylistsCtrl', function($scope) {
       
 })
 
-.controller('PlaylistCtrl', function($scope, $stateParams, $http) {
-            $scope.enviarPregunta = {};
-            $scope.sendQuestion = async = function(){
-            var pregunta = $scope.enviarPregunta.pregunta;
-            var link = "https://admin-canchammx-aileennag.c9users.io/pregunta/"+pregunta;
-            $http.jsonp(link)
-            .then(function successCallback(response) {
-                  }, function errorCallback(response) {
-                    alert("Se ha enviado tu pregunta satisfactoriamente");
-                  });
-            $scope.enviarPregunta.pregunta = "";
-            };
+
+.controller('EventosCtrl', function($scope, Events, $cordovaCalendar, $timeout, $http) {
+	
+		Events.get().then(function(events) {
+			console.log("events", JSON.stringify(events));
+			$scope.events = events;
+		});
+  
+  $scope.addEvent = function(event,idx) {
+		console.log("add ",event);
+		Events.add(event).then(function(result) {
+			console.log("done adding event, result is "+result);
+			if(result === 1) {
+				//update the event
+				$timeout(function() {
+					$scope.events[idx].status = true;
+					$scope.$apply();
+				});
+			} else {
+				//For now... maybe just tell the user it didn't work?
+			}
+		});
+	};
+  
+})
+
+.controller('RepositorioCtrl', function($scope, Documents, $timeout, $cordovaFileTransfer) {
+  
+    Documents.get().then(function(documents) {
+			console.log("documents", JSON.stringify(documents));
+			$scope.documents = documents;
+		});
+    
+    $scope.descargar = function(doc,idx){
+      console.log("add ", doc);
+      console.log(doc.nombre);
+      console.log(doc.liga);
+      document.addEventListener('deviceready', function () {
+        var url = doc.liga;
+        var targetPath = "";
+        var trustHosts = true;
+        var options = {};
+        var nombre_archivo = doc.nombre;
+        
+        if (device.platform === "iOS") {
+          targetPath = cordova.file.documentsDirectory + nombre_archivo;
+        }else if (device.platform === "Android") {
+          targetPath = cordova.file.dataDirectory + nombre_archivo;
+        }else {
+          targetPath = cordova.file.dataDirectory + nombre_archivo;
+        }
+      
+        $cordovaFileTransfer.download(url, targetPath, options, trustHosts)
+          .then(function(result) {
+          // Success!
+            console.log("download complete: " + result.toURL());
+            var file = result.toURL();
+            cordova.plugins.fileOpener2.open(
+            file,
+            'application/pdf',
+            {
+              error : function(e) {
+                console.log('Error status: ' + e.status + ' - Error message: ' + e.message);
+              },
+              success : function () {
+                console.log('file opened successfully');
+              }
+          });
+          }, function(err) {
+          // Error
+            console.log("download error source " + err.source);
+            console.log("download error target " + err.target);
+            console.log("download error code" + err.code);
+          }, function (progress) {
+            $timeout(function () {
+              $scope.downloadProgress = (progress.loaded / progress.total) * 100;
+            });
+          });
+          }, false, {
+            headers: {
+              "Authorization": "Basic dGVzdHVzZXJuYW1lOnRlc3RwYXNzd29yZA=="
+          }
+        });
+    }
+  
+})
+
+
+.controller('PreguntasCtrl', function($scope, $stateParams, $http) {
+    $scope.enviarPregunta = {};
+    $scope.sendQuestion = async = function(){
+    var pregunta = $scope.enviarPregunta.pregunta;
+    var link = "https://admin-canchammx-aileennag.c9users.io/pregunta/"+pregunta;
+    $http.get(link).then(function successCallback(response) {
+        alert("Se ha enviado tu pregunta satisfactoriamente al expositor");
+    }, function errorCallback(response) {
+        console.log("Error: No se envió pregunta");
+    });
+      $scope.enviarPregunta.pregunta = "";
+      };
 });
 
 

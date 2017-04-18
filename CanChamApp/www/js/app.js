@@ -4,7 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngCordova'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngCordova', 'pdf'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -53,7 +53,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       views: {
         'menuContent': {
           templateUrl: 'templates/calendario.html',
-          controller: 'MainCtrl'
+          controller: 'EventosCtrl'
         }
       }
   })
@@ -65,7 +65,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       }
     }
   })
-
   .state('app.login', {
       url: '/login',
       views: {
@@ -75,43 +74,42 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         }
       }
   })
-        .state('app.logout', {
-               url: '/logout',
-               views: {
-               'menuContent': {
-               templateUrl: 'templates/logout.html',
-               //controller: 'LogCtrl'
-               }
-               }
-               })
+  .state('app.logout', {
+      url: '/logout',
+      views: {
+        'menuContent': {
+         templateUrl: 'templates/logout.html',
+          //controller: 'LogCtrl'
+        }
+      }
+  })
   .state('app.preguntas', {
       url: '/preguntas',
       views: {
          'menuContent': {
           templateUrl: 'templates/preguntas.html',
-          controller: 'PlaylistCtrl'
+          controller: 'PreguntasCtrl'
           }
       }
   })
-        .state('app.repositorio', {
-               url: '/repositorio',
-               views: {
-               'menuContent': {
-               templateUrl: 'templates/repositorio.html'
-               //controller: 'HomeCtrl'
-               }
-               }
-               })
-        
-        .state('app.docs', {
-               url: '/docs',
-               views: {
-               'menuContent': {
-               templateUrl: 'templates/docs.html'
-               //controller: 'AppCtrl'
-               }
-               }
-               })
+  .state('app.repositorio', {
+      url: '/repositorio',
+      views: {
+        'menuContent': {
+         templateUrl: 'templates/repositorio.html',
+         controller: 'RepositorioCtrl'
+         }
+      }
+  })
+  .state('app.docs', {
+      url: '/docs',
+      views: {
+        'menuContent': {
+         templateUrl: 'templates/docs.html'
+         //controller: 'AppCtrl'
+         }
+      }
+  })
   .state('app.loginmail', {
       url: '/login-mail',
       views: {
