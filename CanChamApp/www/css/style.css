@@ -18,3 +18,20 @@ body {
   margin: auto;
   z-index: 2;
 }
+
+.background2.scroll-content {
+  background: url(../img/toronto-back.jpg) no-repeat;
+  background-size: cover;
+  background-position: center;
+  margin: auto;
+  z-index: -1;
+}
+
+.img-circle {
+    border-radius: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+

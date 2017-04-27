@@ -14,10 +14,15 @@
 
   <ion-side-menu side="left">
     <ion-header-bar class="bar-stable">
-      <h1 class="title">Menú</h1>
+      <h1 ng-hide="isLogged" class="title">Menu</h1>
+      <h2 ng-show="isLogged" class="title">{{user.name}}</h2>
     </ion-header-bar>
     <ion-content>
       <ion-list>
+        <div class="menu_left_img">
+          <img ng-show="isLoggedFb" class="img-circle" ng-src="{{user.picture}}">
+          <img ng-show="isLoggedGg" class="img-circle" ng-src="{{user.pictureGg}}">
+        </div>
         <ion-item menu-close href="#/app/inicio">
           <i class="icon ion-ios-home"></i>
           Inicio
@@ -30,21 +35,29 @@
           <i class="icon ion-android-person-add"></i>
           Afíliate
         </ion-item>
-        <ion-item menu-close href="#/app/repositorio">
+        <ion-item ng-show="isLogged" menu-close href="#/app/repositorio">
           <i class="icon ion-android-folder-open"></i>
           Repositorio
         </ion-item>
-        <ion-item menu-close href="#/app/preguntas">
-          <i class="icon ion-edit"></i>
-          Preguntas al expositor
+        <ion-item ng-show="isLogged" menu-close href="#/app/preguntas">
+          <i class="icon ion-help"></i>
+          Preguntas
         </ion-item>
-        <ion-item menu-close href="#/app/login">
+        <ion-item ng-hide="isLogged" menu-close href="#/app/login">
           <i class="icon ion-android-exit"></i>
           Iniciar Sesión
         </ion-item>
-        <ion-item menu-close href="#/app/logout">
+        <ion-item ng-show="isLoggedFb" menu-close href="#/app/logoutFb">
           <i class="icon ion-android-exit"></i>
           Cerrar Sesión
+        </ion-item>
+        <ion-item ng-show="isLoggedGg" menu-close href="#/app/logoutGg">
+          <i class="icon ion-android-exit"></i>
+          Cerrar Sesión
+        </ion-item>
+        <ion-item menu-close href="#/app/acercade">
+          <i class="icon ion-information-circled"></i>
+          Acerca De
         </ion-item>
       </ion-list>
     </ion-content>

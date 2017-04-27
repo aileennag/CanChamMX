@@ -46,30 +46,33 @@ angular.module('starter.services', [])
          
 })
 
-.factory('Events', function($q, $ionicPlatform, $cordovaCalendar, $http) {
+.factory('Events', function($q, $ionicPlatform, $cordovaCalendar, $http, $ionicLoading) {
 
-	var incrementDate = function (date, amount) {
-			var tmpDate = new Date(date);
-			tmpDate.setDate(tmpDate.getDate() + amount)
-			return tmpDate;
-	};
+  var incrementDate = function (date, amount) {
+      var tmpDate = new Date(date);
+      tmpDate.setDate(tmpDate.getDate() + amount)
+      return tmpDate;
+  };
 
   var incrementHour = function(date, amount) {
-		var tmpDate = new Date(date);
-		tmpDate.setHours(tmpDate.getHours() + amount);
-		return tmpDate;
-	};
+    var tmpDate = new Date(date);
+    tmpDate.setHours(tmpDate.getHours() + amount);
+    return tmpDate;
+  };
    
   var eventos = [];
   var getEvents = function(){
+    $ionicLoading.show();
     return $http.get('https://admin-canchammx-aileennag.c9users.io/eventos')
       .success(function(data, status, headers,config){
         console.log('data success');
+        $ionicLoading.hide();
         data.forEach(evento=>{
           eventos.push(evento);
         });
       })
       .error(function(data, status, headers,config){
+        $ionicLoading.hide();
         console.log('data error');
       })
       .then(function(result){
@@ -90,7 +93,7 @@ angular.module('starter.services', [])
             }
           }else console.log("Calendar plugin not available.");
         });
-			
+      
         $q.all(promises).then(function(results) {
           console.log("in the all done");
           //should be the same len as events
@@ -99,13 +102,13 @@ angular.module('starter.services', [])
           }
           deferred.resolve(eventos);
         });
-			
-			return deferred.promise;
+      
+      return deferred.promise;
     });
   }
   
   var addEvent = function(event) {
-		var deferred = $q.defer();
+    var deferred = $q.defer();
     if (window.plugins && window.plugins.calendar) {
       $cordovaCalendar.createEvent({
         title: event.nombre,
@@ -120,29 +123,32 @@ angular.module('starter.services', [])
         console.log("Calendar fail " + error);
         deferred.resolve(0);
       });
-		}else console.log("Calendar plugin not available.");
-		
+    }else console.log("Calendar plugin not available.");
+    
     return deferred.promise;
-	}
-	
+  }
+  
   return {
-		get:getEvents,
+    get:getEvents,
     add:addEvent
   };
 
 })
 
-.factory('Documents', function($q, $timeout, $cordovaFileTransfer, $http) {
+.factory('Documents', function($q, $timeout, $cordovaFileTransfer, $http, $ionicLoading) {
   var documentos = [];
   var getDocumentos = function(){
+    $ionicLoading.show();
     return $http.get('https://admin-canchammx-aileennag.c9users.io/documentos')
       .success(function(data, status, headers,config){
+        $ionicLoading.hide();
         console.log('data success');
         data.forEach(doc=>{
           documentos.push(doc);
         });
       })
       .error(function(data, status, headers,config){
+        $ionicLoading.hide();
         console.log('data error');
       })
       .then(function(result){
