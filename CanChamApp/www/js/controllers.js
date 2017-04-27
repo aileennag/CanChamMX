@@ -1,7 +1,7 @@
 angular.module('starter.controllers', [])
 
 
-.controller('LogCtrl', function($scope, $state, $q, UserService, $ionicLoading, $ionicModal, $timeout) {
+.controller('LogCtrl', function($scope, $state, $q, UserService, $ionicActionSheet, $ionicLoading, $ionicModal, $timeout, $rootScope, $location, $http, $ionicHistory) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -11,6 +11,11 @@ angular.module('starter.controllers', [])
   //});
 
   // Form data for the login modal
+  $rootScope.isLogged = false;
+
+  $rootScope.isLoggedFb = false;
+  $rootScope.isLoggedGg = false;
+
   $scope.loginData = {};
 
   // Create the login modal that we will use later
@@ -33,15 +38,38 @@ angular.module('starter.controllers', [])
   };
 
   // Perform the login action when the user submits the login form
-  $scope.doLogin = function() {
+  /*$scope.doLogin = function() {
     console.log('Doing login', $scope.loginData);
-
     // Simulate a login delay. Remove this and replace with your login
     // code if using a login system
     $timeout(function() {
       $scope.closeLogin();
     }, 1000);
-  };
+  };*/
+
+  $scope.data = {};
+ 
+  $scope.doLogin = function() {
+      LoginService.loginUser($scope.data.username, $scope.data.password).success(function(data) {
+          $state.go('tab.dash');
+      }).error(function(data) {
+          var alertPopup = $ionicPopup.alert({
+              title: 'Login failed!',
+              template: 'Please check your credentials!'
+          });
+      });
+  }
+
+  $scope.signup=function(data){
+    var link = 'https://admin-canchammx-aileennag.c9users.io/register';
+
+    $http.post(link, {username : data.username , userapellidopaterno : data.userapellidopaterno,
+      userapellidomaterno : data.userapellidomaterno , email: data.email , password : data.password })
+    .then(function (res){
+      console.log(res);
+    });
+
+  }
 
   //This is the success callback from the login method
   var fbLoginSuccess = function(response) {
@@ -60,11 +88,33 @@ angular.module('starter.controllers', [])
         userID: profileInfo.id,
         name: profileInfo.name,
         email: profileInfo.email,
-        picture : "http://graph.facebook.com/" + authResponse.userID + "/picture?type=large"
+        picture : "https://graph.facebook.com/" + authResponse.userID + "/picture?type=large"
       });
 
       $ionicLoading.hide();
-      $state.go('app.homelg');
+      $rootScope.isLogged = !$rootScope.isLogged;
+
+      //saving isLogged of Google value into localStorage
+      var stored = $scope.isLogged;
+      localStorage.setItem('stored', JSON.stringify(stored));
+      //alert(localStorage.getItem('stored'));
+
+      $rootScope.isLoggedFb = !$rootScope.isLoggedFb; //true
+
+      //saving isLoggedFb of Facebook value into localStorage
+      var storedFb = $scope.isLoggedFb;
+      localStorage.setItem('storedFb', JSON.stringify(storedFb));
+
+      $ionicHistory.clearCache().then(function() {
+          //now you can clear history or goto another state if you need
+          $ionicHistory.clearHistory();
+          $ionicHistory.nextViewOptions({ disableBack: true, historyRoot: true });
+          $state.go('app.home');
+      })
+
+
+      //$state.go('app.homeFb');
+
 
     }, function(fail){
       //fail get profile info
@@ -120,11 +170,18 @@ angular.module('starter.controllers', [])
               userID: profileInfo.id,
               name: profileInfo.name,
               email: profileInfo.email,
-              picture : "http://graph.facebook.com/" + success.authResponse.userID + "/picture?type=large"
+              picture : "https://graph.facebook.com/" + success.authResponse.userID + "/picture?type=large"
             });
 
+            $ionicHistory.clearCache().then(function() {
+                //now you can clear history or goto another state if you need
+                //$ionicHistory.clearHistory();
+                $ionicHistory.nextViewOptions({ disableBack: true, historyRoot: true });
+                $state.go('app.home');
+            })
+
             //go back to app.home if its not working
-            $state.go('app.homelg');
+            //$state.go('app.home');
 
           }, function(fail){
             //fail get profile info
@@ -163,13 +220,44 @@ angular.module('starter.controllers', [])
           userID: user_data.userId,
           name: user_data.displayName,
           email: user_data.email,
-          picture: user_data.imageUrl,
+          pictureGg: user_data.imageUrl,
           accessToken: user_data.accessToken,
           idToken: user_data.idToken
         });
 
         $ionicLoading.hide();
-        $state.go('app.home');
+        $rootScope.isLogged = !$rootScope.isLogged;
+
+
+        //saving isLogged of Google value into localStorage
+        var stored = $scope.isLogged;
+        localStorage.setItem('stored', JSON.stringify(stored));
+        //alert(localStorage.getItem('stored'));
+        //localStorage.data = stored;
+        console.log(localStorage.stored);
+
+        $rootScope.isLoggedGg = !$rootScope.isLoggedGg;
+
+        //saving isLoggedGg of Google value into localStorage
+        var storedGg = $scope.isLoggedGg;
+        localStorage.setItem('storedGg', JSON.stringify(storedGg));
+        //alert(localStorage.getItem('storedGg'));
+        //localStorage.data = stored;
+        //console.log(localStorage.stored);
+
+        //$scope.apply();
+
+        $ionicHistory.clearCache().then(function() {
+            //now you can clear history or goto another state if you need
+            $ionicHistory.clearHistory();
+            $ionicHistory.nextViewOptions({ disableBack: true, historyRoot: true });
+            $state.go('app.home');
+        })
+        //$state.go('app.homeGg');
+        //$location.path == "#/app/inicio";
+        //var state = '#/app/inicio';
+        //$location.path(state);
+        //href="#/app/inicio"
       },
       function (msg) {
         $ionicLoading.hide();
@@ -177,16 +265,14 @@ angular.module('starter.controllers', [])
     );
   };
 
-})
 
-.controller('HomeCtrl', function($scope, UserService, $ionicActionSheet, $state, $ionicLoading){
-
+  //Logout
   $scope.user = UserService.getUser();
 
-  $scope.showLogOutMenu = function() {
+  $scope.showLogOutMenuFacebook = function() {
     var hideSheet = $ionicActionSheet.show({
       destructiveText: 'Logout',
-      titleText: 'Are you sure you want to logout? This app is awsome so I recommend you to stay.',
+      titleText: 'Are you sure you want to logout?',
       cancelText: 'Cancel',
       cancel: function() {},
       buttonClicked: function(index) {
@@ -197,18 +283,91 @@ angular.module('starter.controllers', [])
           template: 'Logging out...'
         });
 
-        //facebook logout
-        facebookConnectPlugin.logout(function(){
-          $ionicLoading.hide();
-          $state.go('app.homelg');
-        },
-        function(fail){
-          $ionicLoading.hide();
-        });
+      //facebook logout
+      facebookConnectPlugin.logout(function(){
+        $ionicLoading.hide();
+        $rootScope.isLogged = !$rootScope.isLogged;
+
+        //saving isLogged of Facebook value into localStorage
+        var stored = $scope.isLogged;
+        localStorage.setItem('stored', JSON.stringify(stored));
+        //alert(localStorage.getItem('stored'));
+
+        $rootScope.isLoggedFb = !$rootScope.isLoggedFb;
+
+        //saving isLoggedFb of Facebook value into localStorage
+        var storedFb = $scope.isLoggedFb;
+        localStorage.setItem('storedFb', JSON.stringify(storedFb));
+
+
+        $ionicHistory.clearCache().then(function() {
+            //now you can clear history or goto another state if you need
+            $ionicHistory.clearHistory();
+            $ionicHistory.nextViewOptions({ disableBack: true, historyRoot: true });
+            $state.go('app.home');
+        })
+
+        //$state.go('app.home');
+      },
+      function(fail){
+        $ionicLoading.hide();
+      });
       }
     });
   };
+
+  $scope.showLogOutMenuGoogle = function() {
+    var hideSheet = $ionicActionSheet.show({
+      destructiveText: 'Logout',
+      titleText: 'Are you sure you want to logout?',
+      cancelText: 'Cancel',
+      cancel: function() {},
+      buttonClicked: function(index) {
+        return true;
+      },
+      destructiveButtonClicked: function(){
+        $ionicLoading.show({
+          template: 'Logging out...'
+        });
+        // Google logout
+        window.plugins.googleplus.logout(
+          function (msg) {
+            console.log(msg);
+            $ionicLoading.hide();
+            $rootScope.isLogged = !$rootScope.isLogged;
+
+            //saving isLogged of Google value into localStorage
+            var stored = $scope.isLogged;
+            localStorage.setItem('stored', JSON.stringify(stored));
+            //alert(localStorage.getItem('stored'));
+            //localStorage.data = stored;
+            console.log(localStorage.stored);
+
+            $rootScope.isLoggedGg = !$rootScope.isLoggedGg;
+
+            //saving isLoggedGg of Google value into localStorage
+            var storedGg = $scope.isLoggedGg;
+            localStorage.setItem('storedGg', JSON.stringify(storedGg));
+
+            $ionicHistory.clearCache().then(function() {
+                //now you can clear history or goto another state if you need
+                $ionicHistory.clearHistory();
+                $ionicHistory.nextViewOptions({ disableBack: true, historyRoot: true });
+                $state.go('app.home');
+            })
+
+            //$state.go('app.home');
+          },
+          function(fail){
+            console.log(fail);
+          }
+        );
+      }
+    });
+  };
+
 })
+
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout, $state, $q, UserService, $ionicLoading) {
 
@@ -268,37 +427,57 @@ angular.module('starter.controllers', [])
 })
 
 
+.controller('AfiliateCtrl', function($scope, $stateParams, $http) {
+  $scope.formData = {};
+  $scope.sendForm = async = function(){
+      var data = this.formData;
+      var nombre = $scope.formData.firstName;
+      var apellidos = $scope.formData.lastName;
+      var organizacion = $scope.formData.company;
+      var email = $scope.formData.email;
+      var link = "https://admin-canchammx-aileennag.c9users.io/afiliate/"+nombre+"/"+apellidos+"/"+organizacion+"/"+email;
+      $http.post(link).then(function successCallback(response) {
+        console.log("Error: No se envió pregunta");
+        alert("No se envió exitosamente tu información");
+      }, function errorCallback(response) {
+        alert("Se envió exitosamente tu información");
+        console.log("Se envió");
+      });
+      $scope.formData = "";
+    };
+})
+
 .controller('EventosCtrl', function($scope, Events, $cordovaCalendar, $timeout, $http) {
-	
-		Events.get().then(function(events) {
-			console.log("events", JSON.stringify(events));
-			$scope.events = events;
-		});
+  
+    Events.get().then(function(events) {
+      console.log("events", JSON.stringify(events));
+      $scope.events = events;
+    });
   
   $scope.addEvent = function(event,idx) {
-		console.log("add ",event);
-		Events.add(event).then(function(result) {
-			console.log("done adding event, result is "+result);
-			if(result === 1) {
-				//update the event
-				$timeout(function() {
-					$scope.events[idx].status = true;
-					$scope.$apply();
-				});
-			} else {
-				//For now... maybe just tell the user it didn't work?
-			}
-		});
-	};
+    console.log("add ",event);
+    Events.add(event).then(function(result) {
+      console.log("done adding event, result is "+result);
+      if(result === 1) {
+        //update the event
+        $timeout(function() {
+          $scope.events[idx].status = true;
+          $scope.$apply();
+        });
+      } else {
+        //For now... maybe just tell the user it didn't work?
+      }
+    });
+  };
   
 })
 
 .controller('RepositorioCtrl', function($scope, Documents, $timeout, $cordovaFileTransfer) {
   
     Documents.get().then(function(documents) {
-			console.log("documents", JSON.stringify(documents));
-			$scope.documents = documents;
-		});
+      console.log("documents", JSON.stringify(documents));
+      $scope.documents = documents;
+    });
     
     $scope.descargar = function(doc,idx){
       console.log("add ", doc);
@@ -356,17 +535,19 @@ angular.module('starter.controllers', [])
 
 
 .controller('PreguntasCtrl', function($scope, $stateParams, $http) {
-    $scope.enviarPregunta = {};
+    $scope.formData = {};
     $scope.sendQuestion = async = function(){
-    var pregunta = $scope.enviarPregunta.pregunta;
-    var link = "https://admin-canchammx-aileennag.c9users.io/pregunta/"+pregunta;
-    $http.get(link).then(function successCallback(response) {
+      var data = this.formData;
+      var pregunta = $scope.formData.pregunta;
+      var link = "https://admin-canchammx-aileennag.c9users.io/pregunta/"+pregunta;
+      $http.get(link).then(function successCallback(response) {
         alert("Se ha enviado tu pregunta satisfactoriamente al expositor");
-    }, function errorCallback(response) {
+        //navigator.notification.alert("Se ha enviado tu pregunta satisfactoriamente al expositor", null, "CanCham", "Close");
+      }, function errorCallback(response) {
         console.log("Error: No se envió pregunta");
-    });
-      $scope.enviarPregunta.pregunta = "";
-      };
+      });
+      $scope.formData.pregunta = "";
+    };
 });
 
 
