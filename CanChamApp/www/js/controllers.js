@@ -1,7 +1,7 @@
 angular.module('starter.controllers', [])
 
 
-.controller('LogCtrl', function($scope, $state, $q, UserService, $ionicActionSheet, $ionicLoading, $ionicModal, $timeout, $rootScope, $location, $http, $ionicHistory) {
+.controller('LogCtrl', function($scope, $state, $stateParams, $q, UserService, $ionicActionSheet, $ionicLoading, $ionicModal, $timeout, $rootScope, $location, $http, $ionicHistory) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -15,8 +15,6 @@ angular.module('starter.controllers', [])
 
   $rootScope.isLoggedFb = false;
   $rootScope.isLoggedGg = false;
-
-  $scope.loginData = {};
 
   // Create the login modal that we will use later
   $ionicModal.fromTemplateUrl('templates/loginMail.html', {
@@ -47,28 +45,66 @@ angular.module('starter.controllers', [])
     }, 1000);
   };*/
 
-  $scope.data = {};
+  $scope.formData = {};
  
-  $scope.doLogin = function() {
-      LoginService.loginUser($scope.data.username, $scope.data.password).success(function(data) {
-          $state.go('tab.dash');
-      }).error(function(data) {
-          var alertPopup = $ionicPopup.alert({
-              title: 'Login failed!',
-              template: 'Please check your credentials!'
-          });
+  $scope.sendForm = async = function(){
+      var data = this.formData;
+      var nombre = $scope.formData.firstName;
+      var apellidoPat = $scope.formData.lastName;
+      var apellidoMat = $scope.formData.lastlastName;
+      var email = $scope.formData.email;
+      var pass = $scope.formData.passwd;
+      console.log(nombre);
+      var link = "http://ec2-52-14-88-198.us-east-2.compute.amazonaws.com:8080/register/"+nombre+"/"+apellidoPat+"/"+apellidoMat+"/"+email+"/"+pass;
+      $ionicLoading.show({
+        template: 'Espere...'
       });
-  }
+      $http.post(link).then(function successCallback(response) {
+        if (device.platform === "iOS") {
+          $ionicLoading.hide();
+          $ionicPopup.alert({
+              title: 'CanChamApp',
+              content: 'Se envió exitosamente tu información'
+            }).then(function(res) {
+              console.log('Test Alert Box');
+          });
+        }else if (device.platform === "Android") {
+          $ionicLoading.hide();
+          alert("Se envió exitosamente tu información");
+        }else{
+          alert("Se envió exitosamente tu información");
+        }
+        console.log("Se envió");
+      }, function errorCallback(response) {
+        console.log("Error: No se envió pregunta");
+        alert("No se envió exitosamente tu información");
+      });
+      $scope.formData = "";
+    };
 
-  $scope.signup=function(data){
-    var link = 'https://admin-canchammx-aileennag.c9users.io/register';
 
-    $http.post(link, {username : data.username , userapellidopaterno : data.userapellidopaterno,
-      userapellidomaterno : data.userapellidomaterno , email: data.email , password : data.password })
-    .then(function (res){
-      console.log(res);
-    });
 
+  $scope.formData = {};
+  $scope.doLogin = function() {
+      var data = this.formData;
+      var nombre = $scope.formData.username;
+      var pass = $scope.formData.password;
+      console.log(nombre);
+      console.log(pass);
+      if(nombre == nombre && pass == pass){
+        $ionicHistory.clearCache().then(function() {
+            //now you can clear history or goto another state if you need
+            $ionicHistory.clearHistory();
+            $ionicHistory.nextViewOptions({ disableBack: true, historyRoot: true });
+            $state.go('app.home');
+        })
+      }else{
+        var alertPopup = $ionicPopup.alert({
+            title: 'Login failed!',
+            template: 'Please check your credentials!'
+        });
+      }
+      $scope.formData = "";
   }
 
   //This is the success callback from the login method
@@ -422,12 +458,9 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('PlaylistsCtrl', function($scope) {
-      
-})
 
 
-.controller('AfiliateCtrl', function($scope, $stateParams, $http) {
+.controller('AfiliateCtrl', function($scope, $stateParams, $http, $ionicPopup, $ionicLoading) {
   $scope.formData = {};
   $scope.sendForm = async = function(){
       var data = this.formData;
@@ -435,13 +468,30 @@ angular.module('starter.controllers', [])
       var apellidos = $scope.formData.lastName;
       var organizacion = $scope.formData.company;
       var email = $scope.formData.email;
-      var link = "https://admin-canchammx-aileennag.c9users.io/afiliate/"+nombre+"/"+apellidos+"/"+organizacion+"/"+email;
+      var link = "http://ec2-52-14-88-198.us-east-2.compute.amazonaws.com:8080/afiliate/"+nombre+"/"+apellidos+"/"+organizacion+"/"+email;
+      $ionicLoading.show({
+        template: 'Espere...'
+      });
       $http.post(link).then(function successCallback(response) {
         console.log("Error: No se envió pregunta");
         alert("No se envió exitosamente tu información");
       }, function errorCallback(response) {
-        alert("Se envió exitosamente tu información");
+        if (device.platform === "iOS") {
+          $ionicLoading.hide();
+          $ionicPopup.alert({
+              title: 'CanChamApp',
+              content: 'Se envió exitosamente tu información'
+            }).then(function(res) {
+              console.log('Test Alert Box');
+          });
+        }else if (device.platform === "Android") {
+          $ionicLoading.hide();
+          alert("Se envió exitosamente tu información");
+        }else{
+          alert("Se envió exitosamente tu información");
+        }
         console.log("Se envió");
+        
       });
       $scope.formData = "";
     };
@@ -534,14 +584,31 @@ angular.module('starter.controllers', [])
 })
 
 
-.controller('PreguntasCtrl', function($scope, $stateParams, $http) {
+.controller('PreguntasCtrl', function($scope, $stateParams, $http, $ionicPopup, $ionicLoading) {
     $scope.formData = {};
     $scope.sendQuestion = async = function(){
       var data = this.formData;
       var pregunta = $scope.formData.pregunta;
-      var link = "https://admin-canchammx-aileennag.c9users.io/pregunta/"+pregunta;
+      var link = "http://ec2-52-14-88-198.us-east-2.compute.amazonaws.com:8080/pregunta/"+pregunta;
+      $ionicLoading.show({
+        template: 'Espere...'
+      });
       $http.get(link).then(function successCallback(response) {
-        alert("Se ha enviado tu pregunta satisfactoriamente al expositor");
+        if (device.platform === "iOS") {
+          $ionicLoading.hide();
+          $ionicPopup.alert({
+              title: 'CanChamApp',
+              content: 'Se ha enviado tu pregunta satisfactoriamente al expositor'
+            }).then(function(res) {
+              console.log('Test Alert Box');
+          });
+        }else if (device.platform === "Android") {
+          $ionicLoading.hide();
+          alert("Se ha enviado tu pregunta satisfactoriamente al expositor");
+        }else{
+          alert("Se ha enviado tu pregunta satisfactoriamente al expositor");
+        }
+        //alert("Se ha enviado tu pregunta satisfactoriamente al expositor");
         //navigator.notification.alert("Se ha enviado tu pregunta satisfactoriamente al expositor", null, "CanCham", "Close");
       }, function errorCallback(response) {
         console.log("Error: No se envió pregunta");

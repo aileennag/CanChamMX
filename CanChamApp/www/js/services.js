@@ -63,7 +63,7 @@ angular.module('starter.services', [])
   var eventos = [];
   var getEvents = function(){
     $ionicLoading.show();
-    return $http.get('https://admin-canchammx-aileennag.c9users.io/eventos')
+    return $http.get('http://ec2-52-14-88-198.us-east-2.compute.amazonaws.com:8080/eventos')
       .success(function(data, status, headers,config){
         console.log('data success');
         $ionicLoading.hide();
@@ -139,7 +139,7 @@ angular.module('starter.services', [])
   var documentos = [];
   var getDocumentos = function(){
     $ionicLoading.show();
-    return $http.get('https://admin-canchammx-aileennag.c9users.io/documentos')
+    return $http.get('http://ec2-52-14-88-198.us-east-2.compute.amazonaws.com:8080/documentos')
       .success(function(data, status, headers,config){
         $ionicLoading.hide();
         console.log('data success');
